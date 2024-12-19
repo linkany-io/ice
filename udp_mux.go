@@ -242,7 +242,7 @@ func (m *UDPMuxDefault) Close() error {
 
 		close(m.closedChan)
 
-		_ = m.params.UDPConn.Close()
+		//_ = m.params.UDPConn.Close() // This is not needed as the underlying connection is not owned by the mux
 	})
 	return err
 }
