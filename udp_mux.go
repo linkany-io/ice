@@ -129,7 +129,7 @@ func NewUDPMuxDefault(params UDPMuxParams) *UDPMuxDefault {
 }
 
 func (m *UDPMuxDefault) HandleStunMessage(addr net.Addr, buf []byte, n int) (bool, error) {
-	if stun.IsMessage(buf) {
+	if stun.IsMessage(buf[:n]) {
 		netUDPAddr, ok := addr.(*net.UDPAddr)
 		if !ok {
 			return false, errors.New("Underlying PacketConn did not return a UDPAddr")
@@ -164,8 +164,10 @@ func (m *UDPMuxDefault) HandleStunMessage(addr net.Addr, buf []byte, n int) (boo
 			ufrag := strings.Split(string(attr), ":")[0]
 			isIPv6 := netUDPAddr.IP.To4() == nil
 
+			m.params.Logger.Infof("Received STUN message from %s, ufrag: %s, isIpv6: %v", addr.String(), ufrag, isIPv6)
 			m.mu.Lock()
 			destinationConn, _ = m.getConn(ufrag, isIPv6)
+			m.params.Logger.Infof("Destination conn: %v", destinationConn)
 			m.mu.Unlock()
 		}
 
@@ -180,7 +182,6 @@ func (m *UDPMuxDefault) HandleStunMessage(addr net.Addr, buf []byte, n int) (boo
 		}
 
 		return true, nil
-
 	}
 
 	return false, nil
