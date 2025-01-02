@@ -164,7 +164,7 @@ func (m *UDPMuxDefault) HandleStunMessage(addr net.Addr, buf []byte, n int) (boo
 			ufrag := strings.Split(string(attr), ":")[0]
 			isIPv6 := netUDPAddr.IP.To4() == nil
 
-			m.params.Logger.Infof("Received STUN message from %s, ufrag: %s, isIpv6: %v", addr.String(), ufrag, isIPv6)
+			m.params.Logger.Infof("Received STUN message from %s, ufrag: %s, isIpv6: %v, m is: %v", addr.String(), ufrag, isIPv6, m)
 			m.mu.Lock()
 			destinationConn, _ = m.getConn(ufrag, isIPv6)
 			m.params.Logger.Infof("Destination conn: %v", destinationConn)
@@ -324,7 +324,7 @@ func (m *UDPMuxDefault) registerConnForAddress(conn *udpMuxedConn, addr ipPort) 
 	}
 	m.addressMap[addr] = conn
 
-	m.params.Logger.Debugf("Registered %s for %s", addr.addr.String(), conn.params.Key)
+	m.params.Logger.Debugf("Registered %s:%d for %s", addr.addr.String(), addr.port, conn.params.Key)
 }
 
 func (m *UDPMuxDefault) createMuxedConn(key string) *udpMuxedConn {
